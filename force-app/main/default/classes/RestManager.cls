@@ -25,11 +25,13 @@ public class RestManager {
   public void populateFields(Sobject obj) {
     Map<String, Object> params = this.getParams();
     for(String fieldName : params.keySet()) {
-      if (this.getFieldType(fieldName) == 'DATE') {
-        Date dateField = Date.parse((String)params.get(fieldName));
-        obj.put(fieldName, dateField);
-      } else {
-        obj.put(fieldName, params.get(fieldName));
+      if (fieldName != 'attributes') {
+        String fieldType = this.getFieldType(fieldName);
+        if (fieldType == 'DATE') {
+          obj.put(fieldName, Date.parse((String)params.get(fieldName)));
+        } else {
+          obj.put(fieldName, params.get(fieldName));
+        }
       }
     }
   }
@@ -42,17 +44,20 @@ public class RestManager {
     if (this.objectType == 'Contract') M = Schema.SObjectType.Contract.fields.getMap();
     if (this.objectType == 'Contact') M = Schema.SObjectType.Contact.fields.getMap();
     Schema.SObjectField field = M.get(fieldName);
+    if (field == null) {
+      return null;
+    }
     Schema.DisplayType fieldType = field.getDescribe().getType();
     return fieldType.name();
   }
 
-  public void response(ID id) {
+  public void response(ID id, Integer statusCode) {
     ObjResponse objResponse = new ObjResponse();
     objResponse.id = id;
     objResponse.success = true;
     objResponse.errors = new List<ObjResponseError>();
     this.response.responseBody = Blob.valueOf(JSON.serializePretty(objResponse));
-    this.response.statusCode = 200;
+    this.response.statusCode = statusCode;
   }
 
   public void responseWithErrors(Exception e) {
@@ -65,7 +70,7 @@ public class RestManager {
     objError.message = e.getMessage();
     objResponse.errors.add(objError);
 
-    if (e.getNumDml() > 0) {
+    if (e.getTypeName() == 'System.DmlException' && e.getNumDml() > 0) {
       for (Integer i = 0; i < e.getNumDml(); i++) {
         objError = new ObjResponseError();
         objError.statusCode = e.getDmlStatusCode(i);

@@ -5,15 +5,16 @@ global with sharing class ContactRest {
     RestManager restManager = new RestManager(RestContext.request, RestContext.response, 'Contact');
 
     Contact contact = new Contact();
-    restManager.populateFields(contact);
 
     try {
-      List<Contact> contacts = ContactService.getByEmail(contact.Email);
-      if (contacts.isEmpty()) {
+      restManager.populateFields(contact);
+      
+      Id contactId = ContactService.getIdByEmail(contact.Email);
+      if (contactId == null) {
         insert contact;
-        restManager.response(contact.id);
+        restManager.response(contact.id, 201);
       } else {
-        restManager.response(contacts[0].Id);
+        restManager.response(contactId, 200);
       }
     } catch (Exception e) {
       restManager.responseWithErrors(e);
@@ -24,14 +25,17 @@ global with sharing class ContactRest {
   global static void updateContact() {
     RestManager restManager = new RestManager(RestContext.request, RestContext.response, 'Contact');
 
-    String contactId = restManager.getId();
-
     try {
-      Contact contact = [SELECT Id FROM Contact WHERE Id = :contactId];
-      restManager.populateFields(contact);
-
-      update contact;
-      restManager.response(contact.Id);
+      String contactId = restManager.getId();
+      List<Contact> contacts = [SELECT Id FROM Contact WHERE Id = :contactId];
+      if (contacts.size() == 1) {
+        Contact contact = contacts[0];
+        restManager.populateFields(contact);
+        update contact;
+        restManager.response(contact.Id, 200);
+      } else {
+        throw new RestException('Invalid Id, contact not found.');
+      }
     } catch(Exception e) {
       restManager.responseWithErrors(e);
     }
@@ -43,11 +47,16 @@ global with sharing class ContactRest {
 
     try {
       String contactId = restManager.getId();
-      Contact contact = [SELECT Id FROM Contact WHERE Id = :contactId];
-      contact.Activated__c = false;
-      update contact;
 
-      restManager.response(null);
+      List<Contact> contacts = [SELECT Id FROM Contact WHERE Id = :contactId];
+      if (contacts.size() == 1) {
+        Contact contact = contacts[0];
+        contact.Activated__c = false;
+        update contact;
+        restManager.response(null, 204);
+      } else {
+        throw new RestException('Invalid Id, contact not found.');
+      }
     } catch(Exception e) {
       restManager.responseWithErrors(e);
     }

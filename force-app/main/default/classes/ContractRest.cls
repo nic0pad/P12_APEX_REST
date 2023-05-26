@@ -5,11 +5,11 @@ global with sharing class ContractRest {
     RestManager restManager = new RestManager(RestContext.request, RestContext.response, 'Contract');
 
     Contract contract = new Contract();
-    restManager.populateFields(contract);
 
     try {
+      restManager.populateFields(contract);
       insert contract;
-      restManager.response(contract.Id);
+      restManager.response(contract.Id, 201);
     } catch(Exception e) {
       restManager.responseWithErrors(e);
     }
@@ -21,12 +21,12 @@ global with sharing class ContractRest {
 
     String contractId = restManager.getId();
 
-    Contract contract = [SELECT Id FROM Contract WHERE Id = :contractId];
-    restManager.populateFields(contract);
-
     try {
+      Contract contract = [SELECT Id FROM Contract WHERE Id = :contractId];
+      restManager.populateFields(contract);
+
       update contract;
-      restManager.response(contract.Id);
+      restManager.response(contract.Id, 200);
     } catch(Exception e) {
       restManager.responseWithErrors(e);
     }
