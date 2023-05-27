@@ -14,26 +14,31 @@ public class RestManager {
     this.objectType = objectType;
   }
 
-  public Map<String, Object> getParams() {
-    return (Map<String, Object>)JSON.deserializeUntyped(this.requestBody);
-  }
-
   public String getId() {
     return request.requestURI.substring(this.request.requestURI.lastIndexOf('/')+1);
   }
 
+  public Object getObject() {
+    Type customType = Type.forName(this.objectType);
+    return JSON.deserialize(this.requestBody, customType);
+  }
+
   public void populateFields(Sobject obj) {
-    Map<String, Object> params = this.getParams();
-    for(String fieldName : params.keySet()) {
+    Map<String, Object> fields = this.getFields();
+    for(String fieldName : fields.keySet()) {
       if (fieldName != 'attributes') {
         String fieldType = this.getFieldType(fieldName);
         if (fieldType == 'DATE') {
-          obj.put(fieldName, Date.parse((String)params.get(fieldName)));
+          obj.put(fieldName, Date.parse((String)fields.get(fieldName)));
         } else {
-          obj.put(fieldName, params.get(fieldName));
+          obj.put(fieldName, fields.get(fieldName));
         }
       }
     }
+  }
+
+  public Map<String, Object> getFields() {
+    return (Map<String, Object>)JSON.deserializeUntyped(this.requestBody);
   }
 
   /**
@@ -79,7 +84,7 @@ public class RestManager {
         objResponse.errors.add(objError);
       }
     }
-    
+
     this.response.responseBody = Blob.valueOf(JSON.serializePretty(objResponse));
     this.response.statusCode = 500;
   }
