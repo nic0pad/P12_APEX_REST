@@ -23,39 +23,6 @@ public class RestManager {
     return JSON.deserialize(this.requestBody, customType);
   }
 
-  public void populateFields(Sobject obj) {
-    Map<String, Object> fields = this.getFields();
-    for(String fieldName : fields.keySet()) {
-      if (fieldName != 'attributes') {
-        String fieldType = this.getFieldType(fieldName);
-        if (fieldType == 'DATE') {
-          obj.put(fieldName, Date.parse((String)fields.get(fieldName)));
-        } else {
-          obj.put(fieldName, fields.get(fieldName));
-        }
-      }
-    }
-  }
-
-  public Map<String, Object> getFields() {
-    return (Map<String, Object>)JSON.deserializeUntyped(this.requestBody);
-  }
-
-  /**
-   * Return the type of a field
-   */
-  private String getFieldType(String fieldName) {
-    Map<String, Schema.SObjectField> M;
-    if (this.objectType == 'Contract') M = Schema.SObjectType.Contract.fields.getMap();
-    if (this.objectType == 'Contact') M = Schema.SObjectType.Contact.fields.getMap();
-    Schema.SObjectField field = M.get(fieldName);
-    if (field == null) {
-      return null;
-    }
-    Schema.DisplayType fieldType = field.getDescribe().getType();
-    return fieldType.name();
-  }
-
   public void response(ID id, Integer statusCode) {
     ObjResponse objResponse = new ObjResponse();
     objResponse.id = id;
