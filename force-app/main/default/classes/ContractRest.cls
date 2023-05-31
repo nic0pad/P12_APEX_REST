@@ -25,6 +25,7 @@ global with sharing class ContractRest {
       List<Contract> contracts = [SELECT Id FROM Contract WHERE Id = :contractId];
       if (contracts.size() == 1) {
         Contract contract = (Contract)restManager.getObject();
+        contract.Id = contractId;
         update contract;
         restManager.response(contract.Id, 200);
       } else {

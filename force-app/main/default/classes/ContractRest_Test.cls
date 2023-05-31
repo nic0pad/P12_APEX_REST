@@ -86,14 +86,13 @@ public class ContractRest_Test {
     insert contract;
 
     Contract contractToUpdate = new Contract(
-      Id = contract.Id,
       Status = 'Draft',
       ContractTerm = 20,
       StartDate = Date.today(),
       AccountId = account.Id
     );
     
-    req.requestURI = REQUEST_URI + contractToUpdate.Id;
+    req.requestURI = REQUEST_URI + contract.Id;
     req.httpMethod = 'PATCH';
     req.requestBody = Blob.valueOf(JSON.serializePretty(contractToUpdate));
 
@@ -132,7 +131,7 @@ public class ContractRest_Test {
     insert contract;
 
     Contract contractToUpdate = new Contract(
-      Status = 'Draft',
+      Status = 'Inconnu',
       ContractTerm = 20,
       StartDate = Date.today()
     );
