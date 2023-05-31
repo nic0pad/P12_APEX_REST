@@ -107,13 +107,12 @@ public class ContactRest_Test {
     RestResponse res = new RestResponse();
 
     Contact contactToUpdate = new Contact(
-      Id = contact.Id,
       FirstName = 'Marc',
       LastName = 'Doe',
       Email='marc@doe.com'
     );
     
-    req.requestURI = REQUEST_URI + contactToUpdate.Id;
+    req.requestURI = REQUEST_URI + contact.Id;
     req.httpMethod = 'PATCH';
     req.requestBody = Blob.valueOf(JSON.serializePretty(contactToUpdate));
  
@@ -150,7 +149,7 @@ public class ContactRest_Test {
     Contact contactToUpdate = new Contact(
       FirstName = 'Marc',
       LastName = 'Doe',
-      Email='marc@doe.com'
+      Email='marc'
     );
     
     req.requestURI = REQUEST_URI + contact.Id;

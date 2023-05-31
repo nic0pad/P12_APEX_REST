@@ -30,6 +30,7 @@ global with sharing class ContactRest {
       List<Contact> contacts = [SELECT Id FROM Contact WHERE Id = :contactId];
       if (contacts.size() == 1) {
         Contact contact = (Contact)restManager.getObject();
+        contact.Id = contactId;
         update contact;
         restManager.response(contact.Id, 200);
       } else {
