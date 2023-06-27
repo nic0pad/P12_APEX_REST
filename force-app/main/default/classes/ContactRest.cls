@@ -1,7 +1,20 @@
+/**
+ * Class Rest API for Contact Object
+ * 
+ * @author Nicolas Padiou
+ */
 @RestResource(urlMapping='/Contact/*')
 global with sharing class ContactRest {
   static final String OBJECT_TYPE = 'Contact';
 
+  /**
+   * Insert contact if not exist else return contact id
+   * 
+   * Method : POST
+   * 
+   * Return body : contact id
+   * Return code : 200 (if exist) / 201 (if created)
+   */
   @HttpPost
   global static void insertContact() {
     RestManager restManager = new RestManager(RestContext.request, RestContext.response, OBJECT_TYPE);
@@ -21,6 +34,14 @@ global with sharing class ContactRest {
     }
   }
 
+  /**
+   * Update contact
+   * 
+   * Method : PATCH
+   * 
+   * Return body : contact id
+   * Return code : 200
+   */
   @HttpPatch
   global static void updateContact() {
     RestManager restManager = new RestManager(RestContext.request, RestContext.response, OBJECT_TYPE);
@@ -41,6 +62,14 @@ global with sharing class ContactRest {
     }
   }
 
+  /**
+   * Disable contact
+   * 
+   * Method : DELETE
+   * 
+   * Return body : null
+   * Return code : 204
+   */
   @HttpDelete
   global static void deleteContact() {
     RestManager restManager = new RestManager(RestContext.request, RestContext.response, OBJECT_TYPE);
